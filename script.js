@@ -14,7 +14,7 @@ const symbols = '~`!@#$%^&*()_-+={[}]|:;"<,>.?/';
 
 let password="";
 let passwordLength=10;
-let checkCount=1;
+let checkCount=0;
 handlSlider();
 // set strength circle to grey
 
@@ -70,23 +70,42 @@ function caclStrength(){
     else setIndicator("#cc5500");
 }
 
+console.log("copy started");
 async function copyContent(){
 
 try{
-     navigator.clipboard.writeText(passwordDisplay.value);
+    await navigator.clipboard.writeText(passwordDisplay.value);
      copyMsg.innerText="copied";
 }
 
 catch(e){
          copyMsg.innerText="failed";
 }
-
+console.log("try catch block ke baad")
 copyMsg.classList.add("active");
 
 setTimeout(
     ()=>{
         copyMsg.classList.remove("active");
     },2000); 
+}
+
+console.log("copy hone ka ending");
+function shufflePassword(array){
+    
+    //Fischer Yates Method
+    for (let i = array.length - 1; i > 0; i--) {
+        //random J, find out using random function
+        const j = Math.floor(Math.random() * (i + 1));
+        //swap number at i index and j index
+        const temp = array[i];
+        array[i] = array[j];
+        array[j] = temp;
+      }
+    let str = "";
+    array.forEach((el) => (str += el));
+    return str;
+
 }
 
 function handleCheckBox(){
@@ -112,7 +131,7 @@ inputSlider.addEventListener('input',(e)=>{
     handlSlider();
 })
 
-copyBtn.addEventListener('copy',()=>{
+copyBtn.addEventListener('click',()=>{
     if(passwordDisplay.value){
         copyContent();
     }
@@ -129,24 +148,67 @@ generateBtn.addEventListener('click',()=>{
    }
   
    // removing old password
-
+console.log("journye shuru krdi")
    password="";
 
-   if(uppercaseCheck.checked){
-    password+=generateUpperrCase();
-   }
+//    if(uppercaseCheck.checked){
+//     password+=generateUpperrCase();
+//    }
 
-   if(lowercaseCheck.checked){
-    password+=generateLowerCase();
-   }
+//    if(lowercaseCheck.checked){
+//     password+=generateLowerCase();
+//    }
 
-   if(numbersCheck.checked){
-    password+=generateRandomNumber();
-   }
+//    if(numbersCheck.checked){
+//     password+=generateRandomNumber();
+//    }
 
-   if(symbolsCheck.checked){
-    password+=generateSymbol ();
-   }
+//    if(symbolsCheck.checked){
+//     password+=generateSymbol ();
+//    }
 
+let funcarr=[];
+
+if(uppercaseCheck.checked)
+    funcarr.push(generateUpperrCase);
+
+if(lowercaseCheck.checked)
+    funcarr.push(generateLowerCase);
+
+if(numbersCheck.checked)
+    funcarr.push(generateRandomNumber);
+
+if(symbolsCheck.checked)
+    funcarr.push(generateSymbol);
+
+console.log("journey beech me hai")
+// compulsory add
+
+for(let i=0;i<funcarr.length;i++){
+    password+=funcarr[i]();
+}
+
+console.log("add kr rhe hm sb kuch")
+// remaining add
+
+for(let i=0;i<passwordLength-funcarr.length; i++){
+  
+let randIndex=getRndInteger(0,funcarr.length);
+password+=funcarr[randIndex]();
+
+}
+
+console.log("shuffle krdiya abto")
+//shuffle the password
+
+password=shufflePassword(Array.from(password));
+
+//show in ui
+
+passwordDisplay.value=password;
+
+console.log("dikha bhi diya bahar")
+//cal strength
+caclStrength();
 
 })
